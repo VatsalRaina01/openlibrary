@@ -1279,12 +1279,15 @@ class account_loans(delegate.page):
 
         # Provider loans are merged here rather than inside get_loans_of_user,
         # and that placement is the point (#13687). That function is not a
-        # display lookup: User.update_loan_status() feeds every element to
-        # lending.sync_loan(loan["ocaid"]) -- called on the line above -- and
-        # borrow.py mints an Internet Archive bookreader link from loan["_key"]
-        # for whichever loan matches the edition. A loan with no ocaid reaching
-        # either of those is a 500 on this page, or an IA reader link for a loan
-        # the Internet Archive has never heard of.
+        # display lookup: borrow.py:318 walks its result and mints an Internet
+        # Archive bookreader link from loan["_key"] for whichever loan matches
+        # the edition. A Lenny loan reaching that line has no "_key" and no
+        # ocaid the Internet Archive has ever heard of.
+        #
+        # #13687 named a second consumer here -- User.update_loan_status()
+        # feeding lending.sync_loan(loan["ocaid"]). That one is gone: master
+        # a9f0236ea (2026-09-29) removed both functions, after this branch was
+        # cut. The borrow.py path above is still live and still sufficient.
         provider = lenny.provider_loans(username)
         docs = list(docs) + provider.loans
 
